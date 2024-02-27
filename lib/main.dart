@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -59,33 +58,41 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final List<double> _sizeList = [1, 2];
-  double _size = 2;
+  double _size = 1;
   void _onClick() {
     setState(() {
-      _size = _sizeList[(_sizeList.indexOf(_size)+1)%_sizeList.length];
+      _size = _sizeList[(_sizeList.indexOf(_size) + 1) % _sizeList.length];
     });
   }
 
   @override
   Widget build(BuildContext context) {
-
+    final double devicePixelRatio =
+        MediaQueryData.fromWindow(WidgetsBinding.instance.window)
+            .devicePixelRatio;
+    final size = MediaQuery.of(context).size;
+    print('');
+    print('');
+    print('');
+    print('');
+    print(
+        'Flutter screen size: ${size.width * devicePixelRatio} ${size.height * devicePixelRatio}');
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
       body: Container(
-        width: MediaQuery.of(context).size.width/_size,
-        height: MediaQuery.of(context).size.height/_size,
-        color: Colors.green,
-        child: const AndroidView(
-          viewType: "SurfaceView",
-          layoutDirection: TextDirection.ltr,
-          creationParamsCodec: StandardMessageCodec(),
-          hitTestBehavior: PlatformViewHitTestBehavior.transparent, //禁止native可交互
-        )
-
-      ),
+          width: (MediaQuery.of(context).size.width - 10) / _size,
+          height: (MediaQuery.of(context).size.height - 10) / _size,
+          color: Colors.blue,
+          child: const AndroidView(
+            viewType: "SurfaceView",
+            layoutDirection: TextDirection.ltr,
+            creationParamsCodec: StandardMessageCodec(),
+            hitTestBehavior:
+                PlatformViewHitTestBehavior.transparent, //禁止native可交互
+          )),
       floatingActionButton: FloatingActionButton(
         onPressed: _onClick,
         tooltip: 'Increment',
