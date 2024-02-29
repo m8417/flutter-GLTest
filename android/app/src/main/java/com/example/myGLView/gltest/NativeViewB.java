@@ -3,34 +3,28 @@ package com.example.myGLView.gltest;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
-import android.graphics.Picture;
-import android.graphics.Shader;
+import android.graphics.Color;
 import android.graphics.LinearGradient;
-import android.graphics.Shader.TileMode;
 import android.graphics.Paint;
-import android.graphics.RectF;
+import android.graphics.PixelFormat;
+import android.graphics.Rect;
+import android.graphics.Shader;
+import android.graphics.Shader.TileMode;
 import android.opengl.GLSurfaceView;
+import android.util.Log;
 import android.view.Surface;
-import android.view.SurfaceView;
 import android.view.SurfaceHolder;
 import android.view.View;
-import android.graphics.Rect;
-import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import android.graphics.PixelFormat;
-import io.flutter.plugin.platform.PlatformView;
-import android.util.Log;
+
 import java.util.Map;
 
-import android.os.Looper;
-import android.os.Handler;
-import java.lang.Runnable;
+import io.flutter.plugin.platform.PlatformView;
 
-class NativeView implements PlatformView {
+class NativeViewB implements PlatformView {
     private final View glSurfaceView;
     private static final String TAG = "NativeView";
 
@@ -67,17 +61,46 @@ class NativeView implements PlatformView {
         //glSurfaceView.invalidate();
     }
 
+    private SurfaceHolder.Callback2 surfaceCallback = new SurfaceHolder.Callback2() {
+        private int width;
+        private int height;
+        @Override
+        public void surfaceCreated(SurfaceHolder holder) {
+            holder.setFormat(PixelFormat.TRANSLUCENT);
+            Log.i(TAG, "SurfaceCreated");
+        }
 
+        @Override
+        public void surfaceRedrawNeeded(SurfaceHolder holder) {
+            Rect r = holder.getSurfaceFrame();
+            Log.i(TAG, "SurfaceRedrawNeeded r=" + r.toString());
+            draw2(holder, width, height);
+        }
 
-    NativeView(@NonNull Context context, int id, @Nullable Map<String, Object> creationParams) {
+        @Override
+        public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+            if (this.width == width && this.height == height) {
+                return;
+            }
+            this.width = width;
+            this.height = height;
+            Log.i(TAG, "SurfaceChanged w=" + width + " h=" + height);
+            holder.setFixedSize(width, height);
+        }
+
+        @Override
+        public void surfaceDestroyed(SurfaceHolder holder) {
+            Log.i(TAG, "SurfaceDestroyed");
+        }
+    };
+
+    NativeViewB(@NonNull Context context, int id, @Nullable Map<String, Object> creationParams) {
         mContext = context;
         glSurfaceView = new View(context);
 
-        if ("A".equals(creationParams.get("name"))) {
-            glSurfaceView.setBackgroundColor(Color.GREEN);
-        } else {
-            glSurfaceView.setBackgroundColor(Color.BLUE);
-        }
+        glSurfaceView.setBackgroundColor(Color.BLUE);
+
+//        glSurfaceView.getHolder().addCallback(surfaceCallback);
     }
 
     @NonNull

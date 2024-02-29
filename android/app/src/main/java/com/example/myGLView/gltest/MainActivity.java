@@ -12,5 +12,9 @@ public class MainActivity extends FlutterActivity {
                 .getPlatformViewsController()
                 .getRegistry()
                 .registerViewFactory("SurfaceView", new NativeViewFactory());
+        flutterEngine
+                .getPlatformViewsController()
+                .getRegistry()
+                .registerViewFactory("SurfaceViewB", new NativeViewFactoryB());
     }
 }

@@ -1,6 +1,9 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:gltest/SecondPage.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,21 +18,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
@@ -40,16 +28,6 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
 
   @override
@@ -58,11 +36,93 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final List<double> _sizeList = [1, 2];
+
+  bool _isPressed = false;
   double _size = 1;
   void _onClick() {
+    // setState(() {
+    //   _size = _sizeList[(_sizeList.indexOf(_size) + 1) % _sizeList.length];
+    // });
+
     setState(() {
-      _size = _sizeList[(_sizeList.indexOf(_size) + 1) % _sizeList.length];
+      // final temp = surfaceList.first;
+      // surfaceList.first = surfaceList.last;
+      // surfaceList.last = temp;
+
+      _isPressed = !_isPressed;
     });
+
+  }
+  List<Widget> surfaceList = [];
+
+  late Widget surfaceA;
+
+  late Widget surfaceB;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+
+    surfaceA = Container(
+        padding: const EdgeInsets.all(10),
+
+        child:PlatformViewLink(
+          viewType: "SurfaceView",
+          surfaceFactory: (context, controller) {
+            return AndroidViewSurface(
+              controller: controller as AndroidViewController,
+              gestureRecognizers: const <Factory<
+                  OneSequenceGestureRecognizer>>{},
+              hitTestBehavior: PlatformViewHitTestBehavior.opaque,
+            );
+          },
+          onCreatePlatformView: (params) {
+            return PlatformViewsService.initSurfaceAndroidView(
+              id: params.id,
+              viewType: "SurfaceView",
+              layoutDirection: TextDirection.ltr,
+              creationParams: {"name" : "A"},
+              creationParamsCodec: const StandardMessageCodec(),
+              onFocus: () {
+                params.onFocusChanged(true);
+              },
+            )..addOnPlatformViewCreatedListener(params.onPlatformViewCreated)
+              ..create();
+          },
+        ));
+
+
+    surfaceB = Container(
+          padding: const EdgeInsets.all(20),
+          child:
+          PlatformViewLink(
+            viewType: "SurfaceViewB",
+            surfaceFactory: (context, controller) {
+              return AndroidViewSurface(
+                controller: controller as AndroidViewController,
+                gestureRecognizers: const <Factory<
+                    OneSequenceGestureRecognizer>>{},
+                hitTestBehavior: PlatformViewHitTestBehavior.opaque,
+              );
+            },
+            onCreatePlatformView: (params) {
+              return PlatformViewsService.initSurfaceAndroidView(
+                id: params.id,
+                viewType: "SurfaceViewB",
+                layoutDirection: TextDirection.ltr,
+                creationParams: {"name" : "B"},
+                creationParamsCodec: const StandardMessageCodec(),
+                onFocus: () {
+                  params.onFocusChanged(true);
+                },
+              )..addOnPlatformViewCreatedListener(params.onPlatformViewCreated)
+                ..create();
+            },
+          ),
+        ) ;
+
+
+    super.initState();
   }
 
   @override
@@ -71,12 +131,20 @@ class _MyHomePageState extends State<MyHomePage> {
         MediaQueryData.fromWindow(WidgetsBinding.instance.window)
             .devicePixelRatio;
     final size = MediaQuery.of(context).size;
+    if (!_isPressed) {
+      surfaceList = [surfaceA, surfaceB];
+    } else {
+      surfaceList = [surfaceB, surfaceA];
+    }
     print('');
     print('');
     print('');
     print('');
     print(
         'Flutter screen size: ${size.width * devicePixelRatio} ${size.height * devicePixelRatio}');
+
+    print(
+        'first: ${surfaceList.first.hashCode} last: ${surfaceList.last.hashCode}');
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -85,14 +153,18 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Container(
           width: (MediaQuery.of(context).size.width - 10) / _size,
           height: (MediaQuery.of(context).size.height - 10) / _size,
-          color: Colors.blue,
-          child: const AndroidView(
-            viewType: "SurfaceView",
-            layoutDirection: TextDirection.ltr,
-            creationParamsCodec: StandardMessageCodec(),
-            hitTestBehavior:
-                PlatformViewHitTestBehavior.transparent, //禁止native可交互
-          )),
+          padding: const EdgeInsets.all(10),
+          child:
+          // const AndroidView(
+          //   viewType: "SurfaceView",
+          //   layoutDirection: TextDirection.ltr,
+          //   creationParamsCodec: StandardMessageCodec(),
+          //   hitTestBehavior:
+          //       PlatformViewHitTestBehavior.transparent, //禁止native可交互
+          // )
+          Stack(children: surfaceList,)
+
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _onClick,
         tooltip: 'Increment',
