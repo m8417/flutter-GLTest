@@ -96,7 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
           padding: const EdgeInsets.all(20),
           child:
           PlatformViewLink(
-            viewType: "SurfaceViewB",
+            viewType: "SurfaceView",
             surfaceFactory: (context, controller) {
               return AndroidViewSurface(
                 controller: controller as AndroidViewController,
@@ -108,7 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
             onCreatePlatformView: (params) {
               return PlatformViewsService.initSurfaceAndroidView(
                 id: params.id,
-                viewType: "SurfaceViewB",
+                viewType: "SurfaceView",
                 layoutDirection: TextDirection.ltr,
                 creationParams: {"name" : "B"},
                 creationParamsCodec: const StandardMessageCodec(),
